@@ -1,8 +1,59 @@
 <script setup>
-import Router from './components/Router.vue'
+import {ref, reactive, onMounted} from 'vue'
+import {useRouter} from 'vue-router'
 
+import TopNav from './components/TopNav.vue'
+import Login from './components/Login.vue'
+import Home from './components/Home.vue'
+
+const router = useRouter();
+
+const vm = reactive({
+  navLinks: [
+    {
+      name: 'Login',
+      route: '/login'
+    },
+    {
+    name: 'Home',
+      route: '/'
+    },
+  ],
+  apiUrl: "http://localhost:3000",
+  currentUser: {}
+})
+
+
+function login(user){
+  vm.currentUser = user;
+  localStorage.setItem("currentUser", JSON.stringify(vm.currentUser));
+  router.push({path: '/'})
+}
+
+function logout(){
+  vm.currentUser = {};
+  localStorage.removeItem("currentUser");
+  router.push({path: '/'})
+}
+
+onMounted(() => {
+  if(!(vm?.currentUser?.username && vm?.currentUser?.username.length > 0)){
+    const lastUser = JSON.parse(localStorage.getItem("currentUser"))
+    if (lastUser){
+      vm.currentUser = lastUser
+    }
+  }
+})
 </script>
 
 <template>
-  <Router></Router>
+  <TopNav @logout="logout" :nav-links="vm.navLinks" :is-logged-in="vm?.currentUser?.username && vm?.currentUser?.username.length > 0"></TopNav>
+  <main>
+    <RouterView v-slot="{Component}">
+      <component @login="login"
+        :is="Component"
+        :api-url="vm.apiUrl"
+        :user="vm.currentUser"></component>
+    </RouterView>
+  </main>
 </template>
