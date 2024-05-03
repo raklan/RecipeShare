@@ -1,10 +1,14 @@
 const express = require('express'); 
 const cors = require('cors');
+
+const db = require('better-sqlite3')('./db/recipes.db');
   
 const app = express(); 
 const PORT = 3000; 
 
 app.use(cors());
+app.use(express.json())
+app.use(express.urlencoded({extended: true}))
   
 app.listen(PORT, (error) =>{ 
     if(!error) 
@@ -20,10 +24,21 @@ app.get("/", (req, res) => {
 });
 
 app.post('/login', (req, res) => {
-    const user = {
-        'username': 'ryan'
-    }
+    const stmt = db.prepare('SELECT * FROM users WHERE username==?')
+    const user = stmt.get(req.body.username);
 
-    res.status(200);
-    res.send(JSON.stringify(user))
+    if (user && user.password == req.body.password){
+        res.status(200);
+        res.json(user)
+    }
+    else{
+        res.status(401);
+        res.json({'error': 'login failed'})
+    }
 });
+
+app.get('/seeddb', async (req, res) => {    
+    await db.exec('CREATE TABLE IF NOT EXISTS users (username TEXT UNIQUE, password TEXT)')
+    res.status(200)
+    res.json({data: 'done'})    
+})

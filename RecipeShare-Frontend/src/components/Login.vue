@@ -6,14 +6,18 @@ const props = defineProps({
     apiUrl: {
         type: String,
         required: true
+    },
+    user: {
+        type: Object,
+        required: false
     }
-
 })
 
 const vm = reactive({
     loginUrl: `${props.apiUrl}/login`,
     username: '',
-    password: ''
+    password: '',
+    loginError: ''
 })
 
 function login(event) {
@@ -32,12 +36,15 @@ function login(event) {
         //Rudimentary error check - Check if SOMEthing was returned and that there's no error
         if(apiObj && !apiObj.error){
             emit('login', apiObj);
+        }else{
+            vm.loginError = apiObj?.error
         }
     })
 }
 </script>
 
 <template>
+    <p>{{ vm.loginError }}</p>
     <form @submit.prevent="login" method="POST" class="login-form">
         <div id="username-box">
             <input type="text" name="username" id="username" placeholder="Username" v-model.trim="vm.username" />
