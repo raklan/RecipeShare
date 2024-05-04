@@ -67,16 +67,46 @@ app.post('/register', (req, res) => {
 })
 
 app.post('/createRecipe', (req, res) => {
-    const insert = db.prepare('INSERT INTO recipes (name, difficulty, author, preptime, cost, categories, private)')
+    try {
+        const recipeInsert = db.prepare('INSERT INTO recipes (name, difficulty, author, preptime, cost, categories, private) VALUES (?, ?, ?, ?, ?, ?, ?)')
+        const recipe = req.body.recipe
+        const result = recipeInsert.run(recipe.name, recipe.difficulty, recipe.author, recipe.preptime, recipe.cost, JSON.stringify(recipe.categories), recipe.private ? 1 : 0)
+        recipe.id = result.lastInsertRowid
 
-    const recipe = req.body.recipe
-    insert.run(recipe.name, recipe.difficulty, recipe.author, recipe.preptime, recipe.cost, JSON.stringify(recipe.categories), recipe.private)
-    
-    res.status(200)
-    res.json({'message': 'success'})
+        const ingredientSetInsert = db.prepare('INSERT INTO ingredientsets (ingredients, recipe_id) VALUES (?, ?)')
+        const ingredientSetsTransaction = db.transaction((sets) => {
+            for (const i of sets) ingredientSetInsert.run(JSON.stringify(i), recipe.id)
+        })
+        ingredientSetsTransaction(req.body.ingredientSets)
+
+        const setpSetInsert = db.prepare('INSERT INTO stepsets (steps, recipe_id) VALUES (?, ?)')
+        const stepSetsTransaction = db.transaction((sets) => {
+            for (const i of sets) setpSetInsert.run(JSON.stringify(i), recipe.id)
+        })
+        stepSetsTransaction(req.body.stepSets)
+
+        res.status(200)
+        res.json({ 'message': 'success' })
+    } catch (e) {
+        res.status(500)
+        res.json({ 'message': e.message })
+    }
 })
 
-app.get('/seeddb', async (req, res) => {
+app.get("/categories", (req, res) => {
+    try {
+        var get = db.prepare("SELECT name FROM categories ORDER BY name")
+        var categories = get.all()
+
+        res.status(200)
+        res.json(categories)
+    } catch (e) {
+        res.status(500)
+        res.json({ 'message': e.message })
+    }
+})
+
+app.get('/seeddb', (req, res) => {
     db.exec('CREATE TABLE IF NOT EXISTS users (username TEXT UNIQUE, password TEXT)')
     res.status(200)
     res.json({ data: 'done' })
