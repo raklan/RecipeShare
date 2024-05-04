@@ -1,7 +1,7 @@
 <script setup>
 import {reactive} from 'vue'
 
-const emit = defineEmits(['login'])
+const emit = defineEmits(['registered'])
 const props = defineProps({
     apiUrl: {
         type: String,
@@ -14,19 +14,19 @@ const props = defineProps({
 })
 
 const vm = reactive({
-    loginUrl: `${props.apiUrl}/login`,
+    registerUrl: `${props.apiUrl}/register`,
     username: '',
     password: '',
-    loginError: ''
+    registerError: ''
 })
 
-function login(event) {
+function register(event) {
     const reqBody = {
         'username': vm.username,
         'password': vm.password
     }
 
-    fetch(vm.loginUrl, {
+    fetch(vm.registerUrl, {
         method: "POST", 
         headers: {
             "Content-Type": "application/json"
@@ -35,17 +35,17 @@ function login(event) {
     }).then(resp => resp.json()).then(apiObj => {
         //Rudimentary error check - Check if SOMEthing was returned and that there's no error
         if(apiObj && !apiObj.error){
-            emit('login', apiObj);
+            emit('registered', apiObj);
         }else{
-            vm.loginError = apiObj?.error
+            vm.registerError = apiObj?.error
         }
     })
 }
 </script>
 
 <template>
-    <form @submit.prevent="login" method="POST" class="login-form">
-        Enter User details:
+    <form @submit.prevent="register" method="POST" class="register-form">
+        Register Here!
         <div id="username-box">
             <input type="text" name="username" id="username" placeholder="Username" v-model.trim="vm.username" />
         </div>
@@ -56,6 +56,5 @@ function login(event) {
             <input type="submit"/>
         </div>
     </form>
-    <p>{{ vm.loginError }}</p>
-    <div>Don't have an account? <RouterLink to="/register">Create One Here!</RouterLink></div>
+    <p>{{ vm.registerError }}</p>
 </template>

@@ -18,6 +18,10 @@ const vm = reactive({
     name: 'Home',
       route: '/'
     },
+    {
+      name: 'New Recipe',
+      route: '/newRecipe'
+    }
   ],
   apiUrl: "http://localhost:3000",
   currentUser: {}
@@ -28,6 +32,10 @@ function login(user){
   vm.currentUser = user;
   localStorage.setItem("currentUser", JSON.stringify(vm.currentUser));
   router.push({path: '/'})
+}
+
+function registered(){
+  router.push({path: '/login'})
 }
 
 function logout(){
@@ -47,10 +55,12 @@ onMounted(() => {
 </script>
 
 <template>
-  <TopNav @logout="logout" :nav-links="vm.navLinks" :is-logged-in="vm?.currentUser?.username && vm?.currentUser?.username.length > 0"></TopNav>
   <main>
+  <TopNav @logout="logout" :nav-links="vm.navLinks" :is-logged-in="vm?.currentUser?.username && vm?.currentUser?.username.length > 0"></TopNav>  
+    <div id="potato-container">
+    </div>
     <RouterView v-slot="{Component}">
-      <component @login="login"
+      <component @login="login" @registered="registered"
         :is="Component"
         :api-url="vm.apiUrl"
         :user="vm.currentUser"></component>
