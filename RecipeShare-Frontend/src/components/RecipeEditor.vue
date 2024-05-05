@@ -3,7 +3,7 @@ import { reactive } from 'vue'
 import Button from './Button.vue'
 
 defineOptions({
-  inheritAttrs: false
+    inheritAttrs: false
 })
 
 const props = defineProps({
@@ -23,10 +23,8 @@ const vm = reactive({
     },
     ingredientSets: [],
     ingredientToAdd: '',
-    is_currentEdit: [],
     stepSets: [],
     stepToAdd: '',
-    ss_currentEdit: []
 })
 
 function diffSelect(event) {
@@ -34,27 +32,40 @@ function diffSelect(event) {
     vm.recipe.difficulty = event.target.value
 }
 
-function addIngredientSet(event){
+function addIngredientSet(event) {
     vm.ingredientSets.push([])
 }
 
-function addIngredient(is, index){
-    const ing = document.getElementById(`addIngredient${index}`)
-    is.push(ing.value)
-    ing.value = 'new value'
-    console.log(ing.value)
+function removeIngredientSet(index) {
+    vm.ingredientSets = vm.ingredientSets.filter(s => vm.ingredientSets.indexOf(s) != index)
 }
 
-function addStepSet(event){
+function addIngredient(is, index) {
+    const ing = document.getElementById(`addIngredient${index}`)
+    if (ing.value && ing.value.length > 0) {
+        is.push(ing.value)
+        ing.value = "";
+    }
+}
+
+function addStepSet(event) {
     vm.stepSets.push([])
 }
 
-function addStep(steps){
-    steps.push(vm.stepToAdd)
-    vm.stepToAdd = ''
+function removeStepSet(index) {
+    vm.stepSets = vm.stepSets.filter(s => vm.stepSets.indexOf(s) != index)
 }
 
-function save(){
+function addStep(steps, index) {
+    console.log(index)
+    const step = document.getElementById(`addStep${index}`)
+    if (step.value && step.value.length > 0) {
+        steps.push(step.value)
+        step.value = ''
+    }
+}
+
+function save() {
     const reqBody = {
         recipe: vm.recipe,
         ingredientSets: vm.ingredientSets,
@@ -69,9 +80,9 @@ function save(){
     })
         .then(resp => resp.json())
         .then(apiObj => {
-            if(apiObj && !apiObj.error){
+            if (apiObj && !apiObj.error) {
 
-            }else{
+            } else {
                 alert(apiObj?.error)
             }
         })
@@ -84,11 +95,16 @@ function save(){
         <div id="recipe-details">
             <div id="recipe-name" class="mb-6">
                 <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Name:</label>
-                <input id="name" type="text" autocomplete="off" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" v-model="vm.recipe.name" />
+                <input id="name" type="text" autocomplete="off"
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+                    v-model="vm.recipe.name" />
             </div>
             <div id="recipe-preptime" class="mb-6">
-                <label for="preptime" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Prep Time:</label>
-                <input id="preptime" type="text" autocomplete="off" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" v-model="vm.recipe.preptime" />
+                <label for="preptime" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Prep
+                    Time:</label>
+                <input id="preptime" type="text" autocomplete="off"
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+                    v-model="vm.recipe.preptime" />
             </div>
             <form @change="diffSelect" id="difficulty-form" class="mb-6">
                 <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Difficulty</label>
@@ -104,41 +120,85 @@ function save(){
                     <input value="1" name="rating" id="star1" type="radio">
                     <label for="star1"></label>
                 </div>
-    
+
             </form>
             <div id="recipe-cost" class="mb-6">
-                <label for="cost" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Cost: (USD)</label>                
-                <input type="number" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" id="cost" v-model="vm.recipe.cost" />
+                <label for="cost" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Cost:
+                    (USD)</label>
+                <input type="number"
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+                    id="cost" v-model="vm.recipe.cost" />
             </div>
             <div id="recipe-name" class="flex items-center mb-4">
-                <label for="private-checkbox"  class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300 mr-2">Private?</label>
-                <input id="private-checkbox" type="checkbox" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" v-model="vm.recipe.private" />
+                <label for="private-checkbox"
+                    class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300 mr-2">Private?</label>
+                <input id="private-checkbox" type="checkbox"
+                    class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                    v-model="vm.recipe.private" />
             </div>
         </div>
-    
+
         <div id="ingredient-set-editor">
-            <h3>Ingredient Sets</h3>
-            <Button @click="addIngredientSet">Add Set</Button>
+            <h3 class="text-lg font-bold">Ingredient Sets</h3>
+            <Button class="mb-2" @click="addIngredientSet">Add Set</Button>
             <div v-for="(is, index) in vm.ingredientSets">
-                <h5>Ingredient Set {{ index + 1 }}</h5>
-                <input :id="`addIngredient${index}`" v-model="vm.ingredientToAdd"/>
-                <Button @click="addIngredient(is, index)">Add Ingredient</Button>   
-                <p v-for="ing in is">{{ ing }}</p>
+                <h5 class="font-bold flex items-center">Ingredient Set {{ index + 1 }}
+                    <button @click="removeIngredientSet(index)" class="deleteButton ml-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 50 59" class="bin">
+                            <path fill="#B5BAC1"
+                                d="M0 7.5C0 5.01472 2.01472 3 4.5 3H45.5C47.9853 3 50 5.01472 50 7.5V7.5C50 8.32843 49.3284 9 48.5 9H1.5C0.671571 9 0 8.32843 0 7.5V7.5Z">
+                            </path>
+                            <path fill="#B5BAC1"
+                                d="M17 3C17 1.34315 18.3431 0 20 0H29.3125C30.9694 0 32.3125 1.34315 32.3125 3V3H17V3Z">
+                            </path>
+                            <path fill="#B5BAC1"
+                                d="M2.18565 18.0974C2.08466 15.821 3.903 13.9202 6.18172 13.9202H43.8189C46.0976 13.9202 47.916 15.821 47.815 18.0975L46.1699 55.1775C46.0751 57.3155 44.314 59.0002 42.1739 59.0002H7.8268C5.68661 59.0002 3.92559 57.3155 3.83073 55.1775L2.18565 18.0974ZM18.0003 49.5402C16.6196 49.5402 15.5003 48.4209 15.5003 47.0402V24.9602C15.5003 23.5795 16.6196 22.4602 18.0003 22.4602C19.381 22.4602 20.5003 23.5795 20.5003 24.9602V47.0402C20.5003 48.4209 19.381 49.5402 18.0003 49.5402ZM29.5003 47.0402C29.5003 48.4209 30.6196 49.5402 32.0003 49.5402C33.381 49.5402 34.5003 48.4209 34.5003 47.0402V24.9602C34.5003 23.5795 33.381 22.4602 32.0003 22.4602C30.6196 22.4602 29.5003 23.5795 29.5003 24.9602V47.0402Z"
+                                clip-rule="evenodd" fill-rule="evenodd"></path>
+                            <path fill="#B5BAC1" d="M2 13H48L47.6742 21.28H2.32031L2 13Z"></path>
+                        </svg>
+                    </button>
+                </h5>
+                <div class="flex items-center">
+                    <input
+                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+                        autocomplete="off" :id="`addIngredient${index}`" />
+                    <Button class="w-60 ml-2" @click="addIngredient(is, index)">Add Ingredient</Button>
+                </div>
+                <p v-for="(ing, i) in is">{{ `${i + 1}: ${ing}` }}</p>
             </div>
         </div>
-    
+
         <div id="step-set-editor">
-            <h3>Step Sets</h3>
-            <Button @click="addStepSet">Add Set</Button>
+            <h3 class="text-lg font-bold">Step Sets</h3>
+            <Button class="mb-2" @click="addStepSet">Add Set</Button>
             <div v-for="(steps, index) in vm.stepSets">
-                <h5>Step Set {{ index + 1 }}</h5>
-                <input v-model="vm.stepToAdd"/>
-                <Button @click="addStep(steps)">Add Step</Button>   
-                <p v-for="step in steps">{{ step }}</p>
+                <h5 class="font-bold flex items-center">Step Set {{ index + 1 }}
+                    <button @click="removeStepSet(index)" class="deleteButton ml-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 50 59" class="bin">
+                            <path fill="#B5BAC1"
+                                d="M0 7.5C0 5.01472 2.01472 3 4.5 3H45.5C47.9853 3 50 5.01472 50 7.5V7.5C50 8.32843 49.3284 9 48.5 9H1.5C0.671571 9 0 8.32843 0 7.5V7.5Z">
+                            </path>
+                            <path fill="#B5BAC1"
+                                d="M17 3C17 1.34315 18.3431 0 20 0H29.3125C30.9694 0 32.3125 1.34315 32.3125 3V3H17V3Z">
+                            </path>
+                            <path fill="#B5BAC1"
+                                d="M2.18565 18.0974C2.08466 15.821 3.903 13.9202 6.18172 13.9202H43.8189C46.0976 13.9202 47.916 15.821 47.815 18.0975L46.1699 55.1775C46.0751 57.3155 44.314 59.0002 42.1739 59.0002H7.8268C5.68661 59.0002 3.92559 57.3155 3.83073 55.1775L2.18565 18.0974ZM18.0003 49.5402C16.6196 49.5402 15.5003 48.4209 15.5003 47.0402V24.9602C15.5003 23.5795 16.6196 22.4602 18.0003 22.4602C19.381 22.4602 20.5003 23.5795 20.5003 24.9602V47.0402C20.5003 48.4209 19.381 49.5402 18.0003 49.5402ZM29.5003 47.0402C29.5003 48.4209 30.6196 49.5402 32.0003 49.5402C33.381 49.5402 34.5003 48.4209 34.5003 47.0402V24.9602C34.5003 23.5795 33.381 22.4602 32.0003 22.4602C30.6196 22.4602 29.5003 23.5795 29.5003 24.9602V47.0402Z"
+                                clip-rule="evenodd" fill-rule="evenodd"></path>
+                            <path fill="#B5BAC1" d="M2 13H48L47.6742 21.28H2.32031L2 13Z"></path>
+                        </svg>
+                    </button>
+                </h5>
+                <div class="flex items-center">
+                    <input
+                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+                        :id="`addStep${index}`" />
+                    <Button class="w-60 ml-2" @click="addStep(steps, index)">Add Step</Button>
+                </div>
+                <p v-for="(step, i) in steps">{{ `${i + 1}: ${step}` }}</p>
             </div>
         </div>
     </div>
-    
+
 </template>
 
 <style scoped>
@@ -167,6 +227,42 @@ function save(){
 .rating label:hover~label {
     color: #1a1a1a;
     transition: color 0.3s;
+}
+
+.deleteButton {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  background-color: transparent;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.deleteButton svg {
+  width: 44%;
+}
+.deleteButton:hover {
+  background-color: rgb(237, 56, 56);
+  overflow: visible;
+}
+.bin path {
+  transition: all 0.2s;
+}
+.deleteButton:hover .bin path {
+  fill: #fff;
+}
+.deleteButton:active {
+  transform: scale(0.98);
+}
+.deleteButton:hover .tooltip {
+  opacity: 1;
 }
 
 </style>
