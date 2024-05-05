@@ -8,6 +8,10 @@ import Home from './components/Home.vue'
 
 const router = useRouter();
 
+defineOptions({
+  inheritAttrs: false
+})
+
 const vm = reactive({
   navLinks: [
     {
@@ -23,7 +27,7 @@ const vm = reactive({
       route: '/newRecipe'
     }
   ],
-  apiUrl: "http://localhost:3000",
+  apiUrl: "http://192.168.0.77:3000",
   currentUser: {}
 })
 

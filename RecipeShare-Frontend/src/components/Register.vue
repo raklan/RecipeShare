@@ -13,6 +13,10 @@ const props = defineProps({
     }
 })
 
+defineOptions({
+  inheritAttrs: false
+})
+
 const vm = reactive({
     registerUrl: `${props.apiUrl}/register`,
     username: '',
@@ -47,7 +51,7 @@ function register(event) {
     <form @submit.prevent="register" method="POST" class="register-form">
         Register Here!
         <div id="username-box">
-            <input type="text" name="username" id="username" placeholder="Username" v-model.trim="vm.username" />
+            <input type="text" name="username" autocomplete="off" id="username" placeholder="Username" v-model.trim="vm.username" />
         </div>
         <div id="password-box">
             <input type="password" name="password" id="password" placeholder="Password" v-model.trim="vm.password" />

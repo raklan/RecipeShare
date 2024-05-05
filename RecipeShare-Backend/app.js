@@ -89,7 +89,7 @@ app.post('/createRecipe', (req, res) => {
         res.json({ 'message': 'success' })
     } catch (e) {
         res.status(500)
-        res.json({ 'message': e.message })
+        res.json({ 'error': e.message })
     }
 })
 
@@ -102,7 +102,7 @@ app.get("/categories", (req, res) => {
         res.json(categories)
     } catch (e) {
         res.status(500)
-        res.json({ 'message': e.message })
+        res.json({ 'error': e.message })
     }
 })
 

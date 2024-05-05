@@ -13,6 +13,10 @@ const props = defineProps({
     }
 })
 
+defineOptions({
+  inheritAttrs: false
+})
+
 const vm = reactive({
     loginUrl: `${props.apiUrl}/login`,
     username: '',
@@ -47,7 +51,7 @@ function login(event) {
     <form @submit.prevent="login" method="POST" class="login-form">
         Enter User details:
         <div id="username-box">
-            <input type="text" name="username" id="username" placeholder="Username" v-model.trim="vm.username" />
+            <input type="text" autocomplete="off" name="username" id="username" placeholder="Username" v-model.trim="vm.username" />
         </div>
         <div id="password-box">
             <input type="password" name="password" id="password" placeholder="Password" v-model.trim="vm.password" />
