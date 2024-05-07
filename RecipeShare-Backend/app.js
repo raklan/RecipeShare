@@ -96,6 +96,19 @@ app.post('/createRecipe', (req, res) => {
     }
 })
 
+app.get('/recipes', (req, res) => {
+    try{
+        var stmt = db.prepare("SELECT * FROM recipes ORDER BY name")
+        const recipes = stmt.all()
+
+        res.status(200)
+        res.json({'data': recipes})
+    }catch (e){
+        res.status(500)
+        res.json({'error': e.message})
+    }
+})
+
 app.get("/categories", (req, res) => {
     try {
         var get = db.prepare("SELECT name FROM categories ORDER BY name")

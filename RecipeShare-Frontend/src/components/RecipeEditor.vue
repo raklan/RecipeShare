@@ -81,7 +81,10 @@ function save() {
         .then(resp => resp.json())
         .then(apiObj => {
             if (apiObj && !apiObj.error) {
-
+                alert('success')
+                vm.recipe = {}
+                vm.stepSets = []
+                vm.ingredientSets = []
             } else {
                 alert(apiObj?.error)
             }
