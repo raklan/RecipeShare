@@ -6,7 +6,8 @@ const props = defineProps({
         type: Array,
         required: false
     },
-    isLoggedIn: Boolean
+    isLoggedIn: Boolean,
+    isAdmin: Boolean
 })
 
 const routes = computed(() => {
@@ -26,6 +27,7 @@ const routes = computed(() => {
     <nav>
         <a v-if="isLoggedIn" @click="$emit('logout')" style="cursor: pointer">Log Out</a>
         <RouterLink v-for="item in routes" :to="item.route">{{item.name}}</RouterLink>
+        <RouterLink v-if="props.isAdmin === true" to="/admin">Admin</RouterLink>
     </nav>
 </template>
 

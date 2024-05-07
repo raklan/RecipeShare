@@ -21,6 +21,8 @@ app.listen(PORT, (error) => {
 }
 );
 
+const adminUsers = ['ryan', 'christina']
+
 app.get("/", (req, res) => {
     res.status(200);
     res.send("Heartbeat successful!")
@@ -110,4 +112,23 @@ app.get('/seeddb', (req, res) => {
     db.exec('CREATE TABLE IF NOT EXISTS users (username TEXT UNIQUE, password TEXT)')
     res.status(200)
     res.json({ data: 'done' })
+})
+
+app.post('/adminSubmit', (req, res) => {
+    if(!adminUsers.includes(req.body.user.username)){
+        res.status(401)
+        res.json({'error': 'not an admin'})        
+    }
+
+    try{
+        db.exec(req.body.query)
+
+        res.status(200)
+        res.json({'message': 'success'})
+    }catch (e){
+        res.status(500)
+        res.json({'error': e.message})
+    }
+
+
 })

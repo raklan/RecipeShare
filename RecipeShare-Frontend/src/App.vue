@@ -1,5 +1,5 @@
 <script setup>
-import {ref, reactive, onMounted} from 'vue'
+import {ref, reactive, onMounted, computed} from 'vue'
 import {useRouter} from 'vue-router'
 
 import TopNav from './components/TopNav.vue'
@@ -31,6 +31,9 @@ const vm = reactive({
   currentUser: {}
 })
 
+const adminUsers = ['ryan', 'christina']
+const isAdmin = computed(() => {return adminUsers.includes(vm.currentUser?.username)})
+
 
 function login(user){
   vm.currentUser = user;
@@ -60,7 +63,7 @@ onMounted(() => {
 
 <template>
   <main>
-  <TopNav @logout="logout" :nav-links="vm.navLinks" :is-logged-in="vm?.currentUser?.username && vm?.currentUser?.username.length > 0"></TopNav>  
+  <TopNav @logout="logout" :nav-links="vm.navLinks" :is-admin="isAdmin" :is-logged-in="vm?.currentUser?.username && vm?.currentUser?.username.length > 0"></TopNav>  
     <div id="potato-container">
     </div>
     <RouterView v-slot="{Component}">

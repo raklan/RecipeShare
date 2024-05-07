@@ -4,6 +4,7 @@ import Home from './components/Home.vue'
 import Login from './components/Login.vue'
 import Register from './components/Register.vue'
 import RecipeEditor from './components/RecipeEditor.vue'
+import Admin from './components/Admin.vue'
 
 const routes = [
     {
@@ -26,6 +27,11 @@ const routes = [
         path: '/newRecipe',
         name: 'newRecipe',
         component: RecipeEditor
+    },
+    {
+        path: '/admin',
+        name: 'admin',
+        component: Admin
     }
 ]
 
