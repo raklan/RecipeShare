@@ -27,7 +27,7 @@ const vm = reactive({
       route: '/newRecipe'
     }
   ],
-  apiUrl: "http://3.19.55.42:3000",
+  apiUrl: "https://j5sytjka1h.execute-api.us-east-2.amazonaws.com",
   currentUser: {}
 })
 
