@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 
 const db = require('better-sqlite3')('/data/recipes.db');
+//const db = require('better-sqlite3')('./db/recipes.db');
 
 const bcrypt = require('bcrypt')
 const saltRounds = 7
@@ -103,6 +104,39 @@ app.get('/recipes', (req, res) => {
 
         res.status(200)
         res.json({'data': recipes})
+    }catch (e){
+        res.status(500)
+        res.json({'error': e.message})
+    }
+})
+
+app.get('/recipe', (req, res) => {
+    const id = req.query.id
+    let toReturn = {}
+    
+    try{
+        let stmt = db.prepare("SELECT * FROM recipes WHERE id==?")
+        const recipe = stmt.get(id)
+
+        if(recipe){
+            stmt = db.prepare("SELECT * FROM ingredientsets WHERE recipe_id==?")
+            const ingredientSets = stmt.all(recipe.id)
+
+            stmt = db.prepare("SELECT * FROM stepsets WHERE recipe_id==?")
+            const stepSets = stmt.all(recipe.id)
+
+            toReturn = {
+                recipe: recipe,
+                ingredientSets: ingredientSets,
+                stepSets: stepSets
+            }
+
+            res.status(200)
+            res.json({'data': toReturn})
+        }else{
+            res.status(404)
+            res.json({'error': 'No Recipe Found'})
+        }
     }catch (e){
         res.status(500)
         res.json({'error': e.message})

@@ -1,10 +1,12 @@
-import { createMemoryHistory, createRouter } from 'vue-router'
+import { createWebHistory, createRouter } from 'vue-router'
 
 import Home from './components/Home.vue'
+import NotFound from './components/NotFound.vue'
 import Login from './components/Login.vue'
 import Register from './components/Register.vue'
 import RecipeEditor from './components/RecipeEditor.vue'
 import Admin from './components/Admin.vue'
+import RecipeView from './components/RecipeView.vue'
 
 const routes = [
     {
@@ -32,11 +34,17 @@ const routes = [
         path: '/admin',
         name: 'admin',
         component: Admin
-    }
+    },
+    {
+        path: '/recipe/:id',
+        name: 'recipe',
+        component: RecipeView
+    },
+    { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound },
 ]
 
 const router = createRouter({
-    history: createMemoryHistory(),
+    history: createWebHistory(),    
     routes,
 })
 
