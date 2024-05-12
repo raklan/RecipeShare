@@ -1,6 +1,6 @@
 <script setup>
 
-import { onMounted, reactive } from 'vue';
+import { onMounted, reactive, computed } from 'vue';
 import { useRoute } from 'vue-router';
 
 const route = useRoute()
@@ -45,6 +45,7 @@ onMounted(() => {
         <div>Difficulty: {{ vm.details.recipe?.difficulty }}/5</div>
         <div>Cost: ${{ vm.details.recipe?.cost }}</div>
         <div>Prep Time: {{ vm.details.recipe?.preptime }}</div>
+        <div>Categories: {{ vm.details.recipe?.categories?.map(o => o.name).join(", ") }}</div>
     </div>
 
     <div>

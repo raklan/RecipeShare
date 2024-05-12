@@ -59,6 +59,10 @@ const vm = reactive({
                 }
             },
             {
+                title: "Categories",
+                data: "categories"
+            },
+            {
                 title: "Public?",
                 data: "private",
                 render: {
@@ -84,6 +88,14 @@ onMounted(() => {
         .then(apiObj => {
             if (apiObj && apiObj.data) {
                 vm.recipes = apiObj.data.filter(r => r.private > 0 ? r.author == props.user?.username : true)
+                //Map the categories list to a string of comma-separated categories.
+                //Doing this here instead of the datatable's rendering so that DataTables can see it as a searchable string,
+                //which lets the user search by category
+                vm.recipes.forEach(r => {
+                    if(r.categories && r.categories.length > 0){
+                        r.categories = r.categories.map(c => c.name).join(", ")
+                    }
+                })
             }
             else {
                 alert(apiObj.error?.message)

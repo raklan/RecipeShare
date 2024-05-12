@@ -1,6 +1,7 @@
 <script setup>
-import { reactive } from 'vue'
+import { reactive, onMounted } from 'vue'
 import Button from './Button.vue'
+import Multiselect from 'vue-multiselect';
 
 defineOptions({
     inheritAttrs: false
@@ -19,12 +20,14 @@ const props = defineProps({
 
 const vm = reactive({
     recipe: {
-        author: props.user.username
+        author: props.user.username,
+        categories: []
     },
     ingredientSets: [],
     ingredientToAdd: '',
     stepSets: [],
     stepToAdd: '',
+    categoryOptions: []
 })
 
 function diffSelect(event) {
@@ -65,6 +68,18 @@ function addStep(steps, index) {
     }
 }
 
+function loadCategories(){
+    fetch(`${props.apiUrl}/categories`)
+    .then(resp => resp.json())
+    .then(apiObj => {
+        if(apiObj && apiObj.data){
+            vm.categoryOptions = apiObj.data
+        }else{
+            alert(apiObj.error?.message)
+        }
+    })
+}
+
 function save() {
     const reqBody = {
         recipe: vm.recipe,
@@ -90,27 +105,31 @@ function save() {
             }
         })
 }
+
+onMounted(() => {
+    loadCategories();
+})
 </script>
 
 <template>
     <Button @click="save">Save</Button>
-    <div id="editor" class="flex justify-around">
+    <div id="editor" class="d-flex justify-content-around">
         <div id="recipe-details">
             <div id="recipe-name" class="mb-6">
-                <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Name:</label>
+                <label for="name">Name:</label>
                 <input id="name" type="text" autocomplete="off"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+                    class="form-control"
                     v-model="vm.recipe.name" />
             </div>
             <div id="recipe-preptime" class="mb-6">
-                <label for="preptime" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Prep
+                <label for="preptime">Prep
                     Time:</label>
                 <input id="preptime" type="text" autocomplete="off"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+                    class="form-control"
                     v-model="vm.recipe.preptime" />
             </div>
             <form @change="diffSelect" id="difficulty-form" class="mb-6">
-                <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Difficulty</label>
+                <label>Difficulty</label>
                 <div id="rating-stars" class="rating">
                     <input value="5" name="rating" id="star5" type="radio">
                     <label for="star5"></label>
@@ -126,17 +145,28 @@ function save() {
 
             </form>
             <div id="recipe-cost" class="mb-6">
-                <label for="cost" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Cost:
+                <label for="cost">Cost:
                     (USD)</label>
                 <input type="number"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+                    class="form-control"
                     id="cost" v-model="vm.recipe.cost" />
             </div>
-            <div id="recipe-name" class="flex items-center mb-4">
-                <label for="private-checkbox"
-                    class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300 mr-2">Private?</label>
+            <div id="category-select">
+                <label for="category-dropdown">Categories</label>
+                <Multiselect id="category-dropdown" 
+                    v-model="vm.recipe.categories"
+                    :options="vm.categoryOptions" 
+                    :multiple="true" 
+                    :close-on-select="false"
+                    :searchable="true"
+                    label="name"
+                    track-by="name"
+                    placeholder="Choose some categories"></Multiselect>
+            </div>
+            <div id="recipe-name" class="d-flex justify-content-start p-2">
+                <label for="private-checkbox" class="mx-2">Private?</label>
                 <input id="private-checkbox" type="checkbox"
-                    class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                    class="form-check"
                     v-model="vm.recipe.private" />
             </div>
         </div>
@@ -203,6 +233,8 @@ function save() {
     </div>
 
 </template>
+
+<style src="vue-multiselect/dist/vue-multiselect.css"></style>
 
 <style scoped>
 .rating {

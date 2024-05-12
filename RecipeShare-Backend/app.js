@@ -2,8 +2,8 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 
-const db = require('better-sqlite3')('/data/recipes.db');
-//const db = require('better-sqlite3')('./db/recipes.db');
+//const db = require('better-sqlite3')('/data/recipes.db');
+const db = require('better-sqlite3')('./db/recipes.db');
 
 const bcrypt = require('bcrypt')
 const saltRounds = 7
@@ -101,6 +101,11 @@ app.get('/recipes', (req, res) => {
     try{
         var stmt = db.prepare("SELECT * FROM recipes ORDER BY name")
         const recipes = stmt.all()
+        recipes.forEach(r => {
+            //Parse the categories back from a string into an array
+            let parsed = JSON.parse(r.categories)
+            r.categories = parsed
+        });
 
         res.status(200)
         res.json({'data': recipes})
@@ -119,6 +124,10 @@ app.get('/recipe', (req, res) => {
         const recipe = stmt.get(id)
 
         if(recipe){
+            //Parse the categories back from a string into an array
+            let parsed = JSON.parse(recipe.categories)
+            recipe.categories = parsed
+
             stmt = db.prepare("SELECT * FROM ingredientsets WHERE recipe_id==?")
             const ingredientSets = stmt.all(recipe.id)
 
@@ -149,7 +158,7 @@ app.get("/categories", (req, res) => {
         var categories = get.all()
 
         res.status(200)
-        res.json(categories)
+        res.json({'data': categories})
     } catch (e) {
         res.status(500)
         res.json({ 'error': e.message })
