@@ -43,6 +43,13 @@ function removeIngredientSet(index) {
     vm.ingredientSets = vm.ingredientSets.filter(s => vm.ingredientSets.indexOf(s) != index)
 }
 
+function ingredientBoxKeyPress(event, is, index){
+    if(event.code == "Enter"){
+        event.preventDefault();
+        addIngredient(is, index)
+    }
+}
+
 function addIngredient(is, index) {
     const ing = document.getElementById(`addIngredient${index}`)
     if (ing.value && ing.value.length > 0) {
@@ -65,6 +72,13 @@ function addStep(steps, index) {
     if (step.value && step.value.length > 0) {
         steps.push(step.value)
         step.value = ''
+    }
+}
+
+function stepBoxKeyPress(event, steps, index){
+    if(event.code == "Enter"){
+        event.preventDefault();
+        addStep(steps, index)
     }
 }
 
@@ -183,7 +197,7 @@ onMounted(() => {
                     </h5>
                     <div class="input-group">
                         <input class="form-control" placeholder="Add an Ingredient..." autocomplete="off"
-                            :id="`addIngredient${index}`" />
+                            :id="`addIngredient${index}`" @keypress="(event) => ingredientBoxKeyPress(event, is, index)"/>
                         <Button class="text-center" @click="addIngredient(is, index)">Add Ingredient</Button>
                     </div>
                     <p v-for="(ing, i) in is">{{ `${i + 1}: ${ing}` }}</p>
@@ -213,7 +227,7 @@ onMounted(() => {
                     </h5>
                     <div class="input-group">
                         <input class="form-control" autocomplete="off" placeholder="Add a Step..."
-                            :id="`addStep${index}`" />
+                            :id="`addStep${index}`" @keypress="(event) => stepBoxKeyPress(event, steps, index)"/>
                         <Button class="text-center" @click="addStep(steps, index)">Add Step</Button>
                     </div>
                     <p v-for="(step, i) in steps">{{ `${i + 1}: ${step}` }}</p>
