@@ -2,8 +2,8 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 
-//const db = require('better-sqlite3')('/data/recipes.db');
-const db = require('better-sqlite3')('./db/recipes.db');
+const db = require('better-sqlite3')('/data/recipes.db');
+//const db = require('better-sqlite3')('./db/recipes.db');
 
 const bcrypt = require('bcrypt')
 const saltRounds = 7
