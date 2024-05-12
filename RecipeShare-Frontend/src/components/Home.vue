@@ -110,7 +110,7 @@ function goToRecipe(id) {
 
 <template>
     <div>
-        <h1>Hello, {{ props.user.username ? props.user.username : "friend" }}!</h1>
+        <h1>Hello, {{ props.user.username ?? "friend" }}!</h1>
         <DataTable class="table table-responsive table-nowrap table-row-border table-hover table-compact"
             :options="vm.dtOptions" :data="vm.recipes"></DataTable>
     </div>
