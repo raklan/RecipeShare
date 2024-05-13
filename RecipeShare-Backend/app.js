@@ -99,7 +99,11 @@ app.post('/createRecipe', (req, res) => {
 
 app.get('/recipes', (req, res) => {
     try{
-        var stmt = db.prepare("SELECT * FROM recipes ORDER BY name")
+        if(req.query.category){
+            var stmt = db.prepare(`SELECT * FROM recipes WHERE categories LIKE '%"${req.query.category}"%' ORDER BY name`)
+        }else{
+            var stmt = db.prepare("SELECT * FROM recipes ORDER BY name")
+        }
         const recipes = stmt.all()
         recipes.forEach(r => {
             //Parse the categories back from a string into an array
