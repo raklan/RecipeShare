@@ -23,6 +23,10 @@ const vm = reactive({
       route: '/'
     },
     {
+      name: 'All Recipes',
+      route: '/recipes'
+    },
+    {
       name: 'New Recipe',
       route: '/newRecipe'
     }

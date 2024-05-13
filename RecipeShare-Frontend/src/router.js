@@ -7,6 +7,7 @@ import Register from './components/Register.vue'
 import RecipeEditor from './components/RecipeEditor.vue'
 import Admin from './components/Admin.vue'
 import RecipeView from './components/RecipeView.vue'
+import RecipeBook from './components/RecipeBook.vue'
 
 const routes = [
     {
@@ -14,6 +15,11 @@ const routes = [
         name: 'home',
         component: Home,
         
+    },
+    {
+        path: '/recipes',
+        name: 'recipeBook',
+        component: RecipeBook,
     },
     {
         path: '/login',
