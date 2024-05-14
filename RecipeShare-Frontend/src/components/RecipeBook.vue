@@ -32,7 +32,11 @@ const vm = reactive({
                 data: 'name',
                 render: {
                     display(data, type, row) {
-                        return `<a href="/recipe/${row.id}">${data}</a>`
+                        if(data && data.length > 0){
+                            return `<a href="/recipe/${row.id}">${data}</a>`
+                        }else{
+                            return `<a href="/recipe/${row.id}">Name not found</a>`
+                        }
                     }
                 }
             },
@@ -41,22 +45,17 @@ const vm = reactive({
                 data: 'difficulty',
                 render: {
                     display(d, t, r) {
-                        return `${d}/5`
+                        if(d){
+                            return `${d}/5`
+                        }else{
+                            return ``
+                        }
                     }
                 }
             },
             {
                 title: "Prep Time",
                 data: 'preptime'
-            },
-            {
-                title: "Cost",
-                data: "cost",
-                render: {
-                    display(d, t, r) {
-                        return `$${d}`
-                    }
-                }
             },
             {
                 title: "Categories",
@@ -99,7 +98,7 @@ onMounted(() => {
                 //which lets the user search by category
                 vm.recipes.forEach(r => {
                     if(r.categories && r.categories.length > 0){
-                        r.categories = r.categories.map(c => c.name).join(", ")
+                        r.categories = r.categories.map(c => c.name).sort().join(", ")
                     }
                 })
             }

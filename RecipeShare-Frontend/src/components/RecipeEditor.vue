@@ -157,11 +157,6 @@ onMounted(() => {
                         </div>
                     </form>
                 </div>
-                <div id="recipe-cost" class="mb-3">
-                    <label for="cost">Cost:
-                        (USD)</label>
-                    <input type="number" class="form-control" id="cost" v-model="vm.recipe.cost" />
-                </div>
                 <div id="category-select" class="mb-3">
                     <label for="category-dropdown">Categories</label>
                     <Multiselect id="category-dropdown" v-model="vm.recipe.categories" :options="vm.categoryOptions"
