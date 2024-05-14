@@ -31,7 +31,6 @@ const vm = reactive({
 })
 
 function diffSelect(event) {
-    console.log(event.target.value)
     vm.recipe.difficulty = event.target.value
 }
 
@@ -111,7 +110,10 @@ function save() {
         .then(apiObj => {
             if (apiObj && !apiObj.error) {
                 alert('success')
-                vm.recipe = {}
+                vm.recipe = {
+                    author: props.user.username,
+                    categories: []
+                }
                 vm.stepSets = []
                 vm.ingredientSets = []
             } else {
