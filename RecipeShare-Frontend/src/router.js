@@ -37,6 +37,11 @@ const routes = [
         component: RecipeEditor
     },
     {
+        path: '/editRecipe/:id',
+        name: 'editRecipe',
+        component: RecipeEditor
+    },
+    {
         path: '/admin',
         name: 'admin',
         component: Admin

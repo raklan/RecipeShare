@@ -42,7 +42,7 @@ const isAdmin = computed(() => {return adminUsers.includes(vm.currentUser?.usern
 
 function login(user){
   vm.currentUser = user;
-  localStorage.setItem("currentUser", JSON.stringify(vm.currentUser));
+  localStorage.setItem("ry_currentUser", JSON.stringify(vm.currentUser));
   router.push({path: '/'})
 }
 
@@ -52,14 +52,14 @@ function registered(){
 
 function logout(){
   vm.currentUser = {};
-  localStorage.removeItem("currentUser");
+  localStorage.removeItem("ry_currentUser");
   router.push({path: '/'})
   window.location.reload();
 }
 
 onMounted(() => {
   if(!(vm?.currentUser?.username && vm?.currentUser?.username.length > 0)){
-    const lastUser = JSON.parse(localStorage.getItem("currentUser"))
+    const lastUser = JSON.parse(localStorage.getItem("ry_currentUser"))
     if (lastUser){
       vm.currentUser = lastUser
     }

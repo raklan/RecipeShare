@@ -79,13 +79,13 @@ app.post('/createRecipe', (req, res) => {
 
         const ingredientSetInsert = db.prepare('INSERT INTO ingredientsets (ingredients, recipe_id) VALUES (?, ?)')
         const ingredientSetsTransaction = db.transaction((sets) => {
-            for (const i of sets) ingredientSetInsert.run(JSON.stringify(i), recipe.id)
+            for (const i of sets) ingredientSetInsert.run(JSON.stringify(i.ingredients), recipe.id)
         })
         ingredientSetsTransaction(req.body.ingredientSets)
 
         const setpSetInsert = db.prepare('INSERT INTO stepsets (steps, recipe_id) VALUES (?, ?)')
         const stepSetsTransaction = db.transaction((sets) => {
-            for (const i of sets) setpSetInsert.run(JSON.stringify(i), recipe.id)
+            for (const i of sets) setpSetInsert.run(JSON.stringify(i.steps), recipe.id)
         })
         stepSetsTransaction(req.body.stepSets)
 
@@ -94,6 +94,38 @@ app.post('/createRecipe', (req, res) => {
     } catch (e) {
         res.status(500)
         res.json({ 'error': e.message })
+    }
+})
+
+app.post('/saveRecipe', (req, res) => {
+    try{
+        const recipeUpdate = db.prepare('UPDATE recipes SET name=?,difficulty=?,preptime=?,cost=?,categories=?,private=? WHERE id==?')
+        const recipe = req.body.recipe
+        const result = recipeUpdate.run(recipe.name, recipe.difficulty,recipe.preptime, recipe.cost, JSON.stringify(recipe.categories), recipe.private ? 1 : 0, recipe.id)
+
+        const deleteOldIngredients = db.prepare('DELETE FROM ingredientsets WHERE recipe_id=?')
+        deleteOldIngredients.run(recipe.id)
+
+        const ingredientSetInsert = db.prepare('INSERT INTO ingredientsets (ingredients, recipe_id) VALUES (?, ?)')
+        const ingredientSetsTransaction = db.transaction((sets) => {
+            for (const i of sets) ingredientSetInsert.run(JSON.stringify(i.ingredients), recipe.id)
+        })
+        ingredientSetsTransaction(req.body.ingredientSets)
+
+        const deleteOldStepSets = db.prepare('DELETE FROM stepsets WHERE recipe_id=?')
+        deleteOldStepSets.run(recipe.id)
+
+        const setpSetInsert = db.prepare('INSERT INTO stepsets (steps, recipe_id) VALUES (?, ?)')
+        const stepSetsTransaction = db.transaction((sets) => {
+            for (const i of sets) setpSetInsert.run(JSON.stringify(i.steps), recipe.id)
+        })
+        stepSetsTransaction(req.body.stepSets)
+
+        res.status(200)
+        res.json({'message': 'success', 'data': req.body})
+    }catch(e){
+        res.status(500)
+        res.json({'error': e.message})
     }
 })
 

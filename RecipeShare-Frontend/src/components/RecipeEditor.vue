@@ -2,10 +2,13 @@
 import { reactive, onMounted } from 'vue'
 import Button from './Button.vue'
 import Multiselect from 'vue-multiselect';
+import { useRoute } from 'vue-router';
 
 defineOptions({
     inheritAttrs: false
 })
+
+const route = useRoute()
 
 const props = defineProps({
     user: {
@@ -21,7 +24,7 @@ const props = defineProps({
 const vm = reactive({
     recipe: {
         author: props.user.username,
-        categories: []
+        categories: [],
     },
     ingredientSets: [],
     ingredientToAdd: '',
@@ -30,20 +33,16 @@ const vm = reactive({
     categoryOptions: []
 })
 
-function diffSelect(event) {
-    vm.recipe.difficulty = event.target.value
-}
-
 function addIngredientSet(event) {
-    vm.ingredientSets.push([])
+    vm.ingredientSets.push({ingredients: []})
 }
 
 function removeIngredientSet(index) {
     vm.ingredientSets = vm.ingredientSets.filter(s => vm.ingredientSets.indexOf(s) != index)
 }
 
-function ingredientBoxKeyPress(event, is, index){
-    if(event.code == "Enter"){
+function ingredientBoxKeyPress(event, is, index) {
+    if (event.code == "Enter") {
         event.preventDefault();
         addIngredient(is, index)
     }
@@ -52,13 +51,13 @@ function ingredientBoxKeyPress(event, is, index){
 function addIngredient(is, index) {
     const ing = document.getElementById(`addIngredient${index}`)
     if (ing.value && ing.value.length > 0) {
-        is.push(ing.value)
+        is.ingredients.push(ing.value)
         ing.value = "";
     }
 }
 
 function addStepSet(event) {
-    vm.stepSets.push([])
+    vm.stepSets.push({steps: []})
 }
 
 function removeStepSet(index) {
@@ -69,13 +68,13 @@ function addStep(steps, index) {
     console.log(index)
     const step = document.getElementById(`addStep${index}`)
     if (step.value && step.value.length > 0) {
-        steps.push(step.value)
+        steps.steps.push(step.value)
         step.value = ''
     }
 }
 
-function stepBoxKeyPress(event, steps, index){
-    if(event.code == "Enter"){
+function stepBoxKeyPress(event, steps, index) {
+    if (event.code == "Enter") {
         event.preventDefault();
         addStep(steps, index)
     }
@@ -99,7 +98,13 @@ function save() {
         ingredientSets: vm.ingredientSets,
         stepSets: vm.stepSets
     }
-    fetch(`${props.apiUrl}/createRecipe`, {
+
+    let endpoint = "createRecipe"
+    if(route.params?.id){
+        endpoint = "saveRecipe"
+    }
+
+    fetch(`${props.apiUrl}/${endpoint}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -110,20 +115,47 @@ function save() {
         .then(apiObj => {
             if (apiObj && !apiObj.error) {
                 alert('success')
-                vm.recipe = {
-                    author: props.user.username,
-                    categories: []
+                if(!route.params?.id){
+                    vm.recipe = {
+                        author: props.user.username,
+                        categories: []
+                    }
+                    vm.stepSets = []
+                    vm.ingredientSets = []
                 }
-                vm.stepSets = []
-                vm.ingredientSets = []
             } else {
                 alert(apiObj?.error)
             }
         })
+
+}
+
+function loadRecipe(){
+    fetch(`${props.apiUrl}/recipe?id=${route.params.id}`)
+    .then(resp => resp.json())
+    .then(apiObj => {
+        if(apiObj && apiObj.data){
+            const details = apiObj.data;
+            vm.recipe = details.recipe;
+            vm.ingredientSets = details.ingredientSets;
+            vm.ingredientSets.forEach(is => {
+                is.ingredients = JSON.parse(is.ingredients)
+            })
+            vm.stepSets = details.stepSets;
+            vm.stepSets.forEach(ss => {
+                ss.steps = JSON.parse(ss.steps)
+            })
+        }else{
+            alert(apiObj.error?.message)
+        }
+    })
 }
 
 onMounted(() => {
     loadCategories();
+    if(route.params?.id){
+        loadRecipe()
+    }
 })
 </script>
 
@@ -143,21 +175,19 @@ onMounted(() => {
                         v-model="vm.recipe.preptime" />
                 </div>
                 <div class="mb-3">
-                    <form @change="diffSelect" id="difficulty-form">
-                        <label>Difficulty</label>
-                        <div id="rating-stars" class="rating">
-                            <input value="5" name="rating" id="star5" type="radio">
-                            <label for="star5"></label>
-                            <input value="4" name="rating" id="star4" type="radio">
-                            <label for="star4"></label>
-                            <input value="3" name="rating" id="star3" type="radio">
-                            <label for="star3"></label>
-                            <input value="2" name="rating" id="star2" type="radio">
-                            <label for="star2"></label>
-                            <input value="1" name="rating" id="star1" type="radio">
-                            <label for="star1"></label>
-                        </div>
-                    </form>
+                    <label>Difficulty</label>
+                    <div id="rating-stars" class="rating">
+                        <input value="5" name="rating" id="star5" type="radio" v-model="vm.recipe.difficulty" :value="5">
+                        <label for="star5"></label>
+                        <input value="4" name="rating" id="star4" type="radio" v-model="vm.recipe.difficulty" :value="4">
+                        <label for="star4"></label>
+                        <input value="3" name="rating" id="star3" type="radio" v-model="vm.recipe.difficulty" :value="3">
+                        <label for="star3"></label>
+                        <input value="2" name="rating" id="star2" type="radio" v-model="vm.recipe.difficulty" :value="2">
+                        <label for="star2"></label>
+                        <input value="1" name="rating" id="star1" type="radio" v-model="vm.recipe.difficulty" :value="1">
+                        <label for="star1"></label>
+                    </div>
                 </div>
                 <div id="category-select" class="mb-3">
                     <label for="category-dropdown">Categories</label>
@@ -194,10 +224,11 @@ onMounted(() => {
                     </h5>
                     <div class="input-group">
                         <input class="form-control" placeholder="Add an Ingredient..." autocomplete="off"
-                            :id="`addIngredient${index}`" @keypress="(event) => ingredientBoxKeyPress(event, is, index)"/>
+                            :id="`addIngredient${index}`"
+                            @keypress="(event) => ingredientBoxKeyPress(event, is, index)" />
                         <Button class="text-center" @click="addIngredient(is, index)">Add Ingredient</Button>
                     </div>
-                    <p v-for="(ing, i) in is">{{ `${i + 1}: ${ing}` }}</p>
+                    <p v-for="(ing, i) in is.ingredients">{{ `${i + 1}: ${ing}` }}</p>
                 </div>
             </div>
 
@@ -224,10 +255,10 @@ onMounted(() => {
                     </h5>
                     <div class="input-group">
                         <input class="form-control" autocomplete="off" placeholder="Add a Step..."
-                            :id="`addStep${index}`" @keypress="(event) => stepBoxKeyPress(event, steps, index)"/>
+                            :id="`addStep${index}`" @keypress="(event) => stepBoxKeyPress(event, steps, index)" />
                         <Button class="text-center" @click="addStep(steps, index)">Add Step</Button>
                     </div>
-                    <p v-for="(step, i) in steps">{{ `${i + 1}: ${step}` }}</p>
+                    <p v-for="(step, i) in steps.steps">{{ `${i + 1}: ${step}` }}</p>
                 </div>
             </div>
         </div>
@@ -239,7 +270,7 @@ onMounted(() => {
 
 <style scoped>
 .rating {
-    display:inline;
+    display: inline;
 }
 
 .rating input {
