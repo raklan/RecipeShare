@@ -197,7 +197,7 @@ onMounted(() => {
                 </div>
                 <div id="recipe-name" class="mb-3 d-flex justify-content-start">
                     <label for="private-checkbox">Private?</label>
-                    <input id="private-checkbox" type="checkbox" class="form-check mx-2" v-model="vm.recipe.private" />
+                    <input id="private-checkbox" type="checkbox" class="form-check mx-2" :checked="vm.recipe.private" v-model="vm.recipe.private" />
                 </div>
             </div>
 

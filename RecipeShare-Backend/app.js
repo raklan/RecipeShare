@@ -1,15 +1,29 @@
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
+// const express = require('express');
+import process from 'dotenv'
+import express from 'express'
+import cors from 'cors'
+import 'bcrypt'
+import {
+    S3Client,
+    PutObjectCommand,
+    CreateBucketCommand,
+    DeleteObjectCommand,
+    DeleteBucketCommand,
+    GetObjectCommand
+} from "@aws-sdk/client-s3"
+//const cors = require('cors');
 
-const db = require('better-sqlite3')('/data/recipes.db');
+//const db = require('better-sqlite3')('/data/recipes.db');
 //const db = require('better-sqlite3')('./db/recipes.db');
+//const db = new Database('/data/recipes.db')
+import Database from 'better-sqlite3'
+const db = new Database('./db/recipes.db')
 
-const bcrypt = require('bcrypt')
+//const bcrypt = require('bcrypt')
 const saltRounds = 7
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.config().parsed?.PORT || 3000;
 
 app.use(cors());
 app.use(express.json())
@@ -22,6 +36,10 @@ app.listen(PORT, (error) => {
         console.log("Error occurred, server can't start", error);
 }
 );
+
+const s3Client = new S3Client({
+    region: 'us-east-2',
+})
 
 const adminUsers = ['ryan', 'christina']
 
@@ -72,9 +90,9 @@ app.post('/register', (req, res) => {
 
 app.post('/createRecipe', (req, res) => {
     try {
-        const recipeInsert = db.prepare('INSERT INTO recipes (name, difficulty, author, preptime, cost, categories, private) VALUES (?, ?, ?, ?, ?, ?, ?)')
+        const recipeInsert = db.prepare('INSERT INTO recipes (name, difficulty, author, preptime, categories, private) VALUES (?, ?, ?, ?, ?, ?, ?)')
         const recipe = req.body.recipe
-        const result = recipeInsert.run(recipe.name, recipe.difficulty, recipe.author, recipe.preptime, recipe.cost, JSON.stringify(recipe.categories), recipe.private ? 1 : 0)
+        const result = recipeInsert.run(recipe.name, recipe.difficulty, recipe.author, recipe.preptime, JSON.stringify(recipe.categories), recipe.private ? 1 : 0)
         recipe.id = result.lastInsertRowid
 
         const ingredientSetInsert = db.prepare('INSERT INTO ingredientsets (ingredients, recipe_id) VALUES (?, ?)')
@@ -99,9 +117,9 @@ app.post('/createRecipe', (req, res) => {
 
 app.post('/saveRecipe', (req, res) => {
     try{
-        const recipeUpdate = db.prepare('UPDATE recipes SET name=?,difficulty=?,preptime=?,cost=?,categories=?,private=? WHERE id==?')
+        const recipeUpdate = db.prepare('UPDATE recipes SET name=?,difficulty=?,preptime=?,categories=?,private=? WHERE id==?')
         const recipe = req.body.recipe
-        const result = recipeUpdate.run(recipe.name, recipe.difficulty,recipe.preptime, recipe.cost, JSON.stringify(recipe.categories), recipe.private ? 1 : 0, recipe.id)
+        const result = recipeUpdate.run(recipe.name, recipe.difficulty,recipe.preptime, JSON.stringify(recipe.categories), recipe.private ? 1 : 0, recipe.id)
 
         const deleteOldIngredients = db.prepare('DELETE FROM ingredientsets WHERE recipe_id=?')
         deleteOldIngredients.run(recipe.id)
@@ -224,4 +242,16 @@ app.post('/adminSubmit', (req, res) => {
     }
 
 
+})
+
+app.get('/s3testset', (req, res) => {
+    s3Client.send(new PutObjectCommand({
+        Bucket: 'recipeshare',
+        Key: 'testobject.txt',
+        Body: "This is a test"
+    }))
+})
+
+app.get('/s3testget', (req, res) => {
+    
 })
