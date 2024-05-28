@@ -12,7 +12,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 const corsOptions = {
-    origin: "*"
+    origin: ['https://recyipee.com']
 }
 
 app.use(cors(corsOptions));
@@ -26,10 +26,6 @@ app.listen(PORT, (error) => {
         console.log("Error occurred, server can't start", error);
 }
 );
-
-const s3Client = new S3Client({
-    region: 'us-east-2',
-})
 
 const adminUsers = ['ryan', 'christina']
 
@@ -232,16 +228,4 @@ app.post('/adminSubmit', (req, res) => {
     }
 
 
-})
-
-app.get('/s3testset', (req, res) => {
-    s3Client.send(new PutObjectCommand({
-        Bucket: 'recipeshare',
-        Key: 'testobject.txt',
-        Body: "This is a test"
-    }))
-})
-
-app.get('/s3testget', (req, res) => {
-    
 })
