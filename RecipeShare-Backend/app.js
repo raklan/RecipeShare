@@ -1,29 +1,34 @@
-// const express = require('express');
-import process from 'dotenv'
-import express from 'express'
-import cors from 'cors'
-import 'bcrypt'
-import {
-    S3Client,
-    PutObjectCommand,
-    CreateBucketCommand,
-    DeleteObjectCommand,
-    DeleteBucketCommand,
-    GetObjectCommand
-} from "@aws-sdk/client-s3"
+require('dotenv').config();
+const express = require('express');
+const cors = require('cors');
+// import process from 'dotenv'
+// import express from 'express'
+// import cors from 'cors'
+//import 'bcrypt'
+// import {
+//     S3Client,
+//     PutObjectCommand,
+//     CreateBucketCommand,
+//     DeleteObjectCommand,
+//     DeleteBucketCommand,
+//     GetObjectCommand
+// } from "@aws-sdk/client-s3"
 //const cors = require('cors');
 
 //const db = require('better-sqlite3')('/data/recipes.db');
-//const db = require('better-sqlite3')('./db/recipes.db');
+const db = require('better-sqlite3')('./db/recipes.db');
 //const db = new Database('/data/recipes.db')
-import Database from 'better-sqlite3'
-const db = new Database('./db/recipes.db')
+// import Database from 'better-sqlite3'
+//const db = new Database('./db/recipes.db')
 
-//const bcrypt = require('bcrypt')
+const S3Client = require('@aws-sdk/client-s3').S3Client
+
+
+const bcrypt = require('bcrypt')
 const saltRounds = 7
 
 const app = express();
-const PORT = process.config().parsed?.PORT || 3000;
+const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json())
