@@ -15,7 +15,7 @@ const corsOptions = {
     origin: ['https://recyipee.com', "http://localhost:5173", "http://192.168.0.77:5173"]
 }
 
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
