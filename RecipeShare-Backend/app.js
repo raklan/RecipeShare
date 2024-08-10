@@ -5,11 +5,12 @@ const cors = require('cors');
 const fileparser = require('./fileparser');
 
 var environment = process.env.ENVIRONMENT;
-if(environment && environment == "DEV"){
-    const db = require('better-sqlite3')('./db/recipes.db');
+let db = null;
+if(environment && environment == "DEV"){    
+    db = require('better-sqlite3')('./db/recipes.db');
 }
 else{
-    const db = require('better-sqlite3')('/data/recipes.db');
+    db = require('better-sqlite3')('/data/recipes.db');
 }
 
 const bcrypt = require('bcrypt')
