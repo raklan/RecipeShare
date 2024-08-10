@@ -31,8 +31,8 @@ const vm = reactive({
       route: '/newRecipe'
     }
   ],
-  apiUrl: "https://j5sytjka1h.execute-api.us-east-2.amazonaws.com",
-  //apiUrl: 'http://localhost:2323',
+  //apiUrl: "https://j5sytjka1h.execute-api.us-east-2.amazonaws.com",
+  apiUrl: 'http://192.168.0.77:2323',
   currentUser: {}
 })
 
@@ -72,7 +72,7 @@ onMounted(() => {
   <TopNav @logout="logout" :nav-links="vm.navLinks" :is-admin="isAdmin" :is-logged-in="vm?.currentUser?.username && vm?.currentUser?.username.length > 0"></TopNav>  
     <div id="potato-container">
     </div>
-    <RouterView v-slot="{Component}">
+    <RouterView v-slot="{Component}" :key="$route.fullPath">
       <component @login="login" @registered="registered"
         :is="Component"
         :api-url="vm.apiUrl"

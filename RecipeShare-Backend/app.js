@@ -2,8 +2,10 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 
-const db = require('better-sqlite3')('/data/recipes.db');
-//const db = require('better-sqlite3')('./db/recipes.db');
+const fileparser = require('./fileparser');
+
+//const db = require('better-sqlite3')('/data/recipes.db');
+const db = require('better-sqlite3')('./db/recipes.db');
 
 const bcrypt = require('bcrypt')
 const saltRounds = 7
@@ -76,9 +78,9 @@ app.post('/register', (req, res) => {
 
 app.post('/createRecipe', (req, res) => {
     try {
-        const recipeInsert = db.prepare('INSERT INTO recipes (name, difficulty, author, preptime, categories, private) VALUES (?, ?, ?, ?, ?, ?, ?)')
+        const recipeInsert = db.prepare('INSERT INTO recipes (name, difficulty, author, preptime, categories, private, image) VALUES (?, ?, ?, ?, ?, ?, ?)')
         const recipe = req.body.recipe
-        const result = recipeInsert.run(recipe.name, recipe.difficulty, recipe.author, recipe.preptime, JSON.stringify(recipe.categories), recipe.private ? 1 : 0)
+        const result = recipeInsert.run(recipe.name, recipe.difficulty, recipe.author, recipe.preptime, JSON.stringify(recipe.categories), recipe.private ? 1 : 0, '')
         recipe.id = result.lastInsertRowid
 
         const ingredientSetInsert = db.prepare('INSERT INTO ingredientsets (ingredients, recipe_id) VALUES (?, ?)')
@@ -94,7 +96,14 @@ app.post('/createRecipe', (req, res) => {
         stepSetsTransaction(req.body.stepSets)
 
         res.status(200)
-        res.json({ 'message': 'success' })
+        res.json({
+            'message': 'success',
+            'data': {
+                recipe: recipe,
+                ingredientSets: req.body.ingredientSets,
+                stepSets: req.body.stepSets
+            }
+        })
     } catch (e) {
         res.status(500)
         res.json({ 'error': e.message })
@@ -102,10 +111,10 @@ app.post('/createRecipe', (req, res) => {
 })
 
 app.post('/saveRecipe', (req, res) => {
-    try{
-        const recipeUpdate = db.prepare('UPDATE recipes SET name=?,difficulty=?,preptime=?,categories=?,private=? WHERE id==?')
+    try {
+        const recipeUpdate = db.prepare('UPDATE recipes SET name=?,difficulty=?,preptime=?,categories=?,private=?,image=? WHERE id==?')
         const recipe = req.body.recipe
-        const result = recipeUpdate.run(recipe.name, recipe.difficulty,recipe.preptime, JSON.stringify(recipe.categories), recipe.private ? 1 : 0, recipe.id)
+        const result = recipeUpdate.run(recipe.name, recipe.difficulty, recipe.preptime, JSON.stringify(recipe.categories), recipe.private ? 1 : 0, recipe.image, recipe.id)
 
         const deleteOldIngredients = db.prepare('DELETE FROM ingredientsets WHERE recipe_id=?')
         deleteOldIngredients.run(recipe.id)
@@ -126,18 +135,18 @@ app.post('/saveRecipe', (req, res) => {
         stepSetsTransaction(req.body.stepSets)
 
         res.status(200)
-        res.json({'message': 'success', 'data': req.body})
-    }catch(e){
+        res.json({ 'message': 'success', 'data': req.body })
+    } catch (e) {
         res.status(500)
-        res.json({'error': e.message})
+        res.json({ 'error': e.message })
     }
 })
 
 app.get('/recipes', (req, res) => {
-    try{
-        if(req.query.category){
+    try {
+        if (req.query.category) {
             var stmt = db.prepare(`SELECT * FROM recipes WHERE categories LIKE '%"${req.query.category}"%' ORDER BY name`)
-        }else{
+        } else {
             var stmt = db.prepare("SELECT * FROM recipes ORDER BY name")
         }
         const recipes = stmt.all()
@@ -148,22 +157,22 @@ app.get('/recipes', (req, res) => {
         });
 
         res.status(200)
-        res.json({'data': recipes})
-    }catch (e){
+        res.json({ 'data': recipes })
+    } catch (e) {
         res.status(500)
-        res.json({'error': e.message})
+        res.json({ 'error': e.message })
     }
 })
 
 app.get('/recipe', (req, res) => {
     const id = req.query.id
     let toReturn = {}
-    
-    try{
+
+    try {
         let stmt = db.prepare("SELECT * FROM recipes WHERE id==?")
         const recipe = stmt.get(id)
 
-        if(recipe){
+        if (recipe) {
             //Parse the categories back from a string into an array
             let parsed = JSON.parse(recipe.categories)
             recipe.categories = parsed
@@ -181,14 +190,14 @@ app.get('/recipe', (req, res) => {
             }
 
             res.status(200)
-            res.json({'data': toReturn})
-        }else{
+            res.json({ 'data': toReturn })
+        } else {
             res.status(404)
-            res.json({'error': 'No Recipe Found'})
+            res.json({ 'error': 'No Recipe Found' })
         }
-    }catch (e){
+    } catch (e) {
         res.status(500)
-        res.json({'error': e.message})
+        res.json({ 'error': e.message })
     }
 })
 
@@ -198,7 +207,7 @@ app.get("/categories", (req, res) => {
         var categories = get.all()
 
         res.status(200)
-        res.json({'data': categories})
+        res.json({ 'data': categories })
     } catch (e) {
         res.status(500)
         res.json({ 'error': e.message })
@@ -211,20 +220,40 @@ app.get('/seeddb', (req, res) => {
     res.json({ data: 'done' })
 })
 
+app.post('/recipepicture', async (req, res) => {
+    await fileparser.parsefile(req)
+        .then(data => {
+            res.status(200).json({
+                message: 'success',
+                data
+            })
+        })
+        .catch(error => {
+            res.status(400).json({
+                message: 'an error occurred',
+                error
+            })
+        })
+})
+
+app.get('/recipepicture/:imageId', fileparser.getFile)
+
+app.delete('/recipepicture/:imageId', fileparser.deleteFile)
+
 app.post('/adminSubmit', (req, res) => {
-    if(!adminUsers.includes(req.body.user.username)){
+    if (!adminUsers.includes(req.body.user.username)) {
         res.status(401)
-        res.json({'error': 'not an admin'})        
+        res.json({ 'error': 'not an admin' })
     }
 
-    try{
+    try {
         db.exec(req.body.query)
 
         res.status(200)
-        res.json({'message': 'success'})
-    }catch (e){
+        res.json({ 'message': 'success' })
+    } catch (e) {
         res.status(500)
-        res.json({'error': e.message})
+        res.json({ 'error': e.message })
     }
 
 
