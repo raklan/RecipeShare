@@ -4,8 +4,8 @@ const cors = require('cors');
 
 const fileparser = require('./fileparser');
 
-//const db = require('better-sqlite3')('/data/recipes.db');
-const db = require('better-sqlite3')('./db/recipes.db');
+const db = require('better-sqlite3')('/data/recipes.db');
+//const db = require('better-sqlite3')('./db/recipes.db');
 
 const bcrypt = require('bcrypt')
 const saltRounds = 7
