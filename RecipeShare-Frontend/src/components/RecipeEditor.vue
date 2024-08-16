@@ -31,7 +31,9 @@ const vm = reactive({
     ingredientToAdd: '',
     stepSets: [],
     stepToAdd: '',
-    categoryOptions: []
+    categoryOptions: [],
+    hours: 0,
+    minutes: 0
 })
 
 function addIngredientSet(event) {
@@ -140,10 +142,34 @@ function loadRecipe() {
                 vm.stepSets.forEach(ss => {
                     ss.steps = JSON.parse(ss.steps)
                 })
+                splitPrepTime();
             } else {
                 alert(apiObj.error?.message)
             }
         })
+}
+
+function splitPrepTime(){
+    const hourRegex = /\d{1,2}( )?h/g;
+    const minuteRegex = /\d{1,2}( )?m(in)?/g;
+
+    const hours = vm.recipe.preptime.match(hourRegex)
+    const minutes = vm.recipe.preptime.match(minuteRegex)
+
+    if(hours && hours.length > 0){
+        vm.hours = hours[0].replace(/[ h]/g, '');
+    }
+    if(minutes && minutes.length > 0){
+        vm.minutes = minutes[0].replace(/[ min]/g, '');
+    }
+}
+
+function combinePrepTime(){
+    if(vm.hours > 0){
+        vm.recipe.preptime = `${vm.hours}h ${vm.minutes}min`;
+    }else{
+        vm.recipe.preptime = `${vm.minutes}min`
+    }
 }
 
 function imageChange(event){
@@ -198,8 +224,14 @@ onMounted(() => {
                 <div id="recipe-preptime" class="mb-3">
                     <label for="preptime">Prep
                         Time:</label>
-                    <input id="preptime" type="text" autocomplete="off" class="form-control"
-                        v-model="vm.recipe.preptime" />
+                    <div class="input-group">
+                        <input type="number" class="form-control" min="0" v-model="vm.hours" v-on:change="combinePrepTime" />
+                        <span class="input-group-text">hours</span>
+                        <input type="number" class="form-control" min="0" v-model="vm.minutes" v-on:change="combinePrepTime" />
+                        <span class="input-group-text">minutes</span>
+                    </div>
+                    <!-- <input id="preptime" type="time" autocomplete="off" class="form-control"
+                        v-model="vm.recipe.preptime" /> -->
                 </div>
                 <div class="mb-3">
                     <label>Difficulty</label>
@@ -233,8 +265,8 @@ onMounted(() => {
                         v-model="vm.recipe.private" />
                 </div>
                 <img v-if="vm.recipe?.image" :src="`${props.apiUrl}/recipepicture/${vm.recipe?.image}`" style="max-width: 50%; max-height: 50%"></img>
-                <p style="cursor:pointer; text-decoration: underline; color:blue" @click="deleteImage">Remove Image</p>
-                <form class="file-upload-form">
+                <p v-if="vm.recipe?.image" style="cursor:pointer; text-decoration: underline; color:blue" @click="deleteImage">Remove Image</p>
+                <form v-if="!vm.recipe?.image" class="file-upload-form">
                     <label for="picture-upload" class="file-upload-label">
                         <div class="file-upload-design">
                             <svg viewBox="0 0 640 512" height="1em">

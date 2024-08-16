@@ -24,6 +24,7 @@ const props = defineProps({
 const vm = reactive({
     recipes: [],
     dtOptions: {
+        stateSave: true,
         responsive: true,
         order: [[0, 'asc']],
         columns: [
