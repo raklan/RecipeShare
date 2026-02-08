@@ -83,14 +83,12 @@ defineOptions({
 })
 
 onMounted(() => {
-    console.log(props.apiUrl)
     if(router.currentRoute.value.query.category){
         var fetchUrl = `${props.apiUrl}/recipes?category=${router.currentRoute.value.query.category}`
     }
     else{
         var fetchUrl = `${props.apiUrl}/recipes`
     }
-    console.log(fetchUrl)
     fetch(fetchUrl)
         .then(resp => resp.json())
         .then(apiObj => {
