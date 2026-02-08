@@ -1,3 +1,9 @@
+app = "recipeshare-backend"
+
+[[mounts]]
+source = "recipeshare_data"
+destination = "/data"
+
 [env]
 PORT = "2323"
 ENVIRONMENT = "PROD"
