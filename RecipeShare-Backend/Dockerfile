@@ -9,13 +9,12 @@ RUN mkdir -p /data && chown -R node:node /data
 WORKDIR /app
 
 # Copy package files
-COPY package*.json ./
+COPY package.json ./
+
+RUN npm install
 
 # Install dependencies inside container
 RUN npm ci --only=production
-
-# Force rebuild of better-sqlite3 inside container
-RUN npm rebuild better-sqlite3 --build-from-source
 
 # Copy the rest of the app
 COPY . .

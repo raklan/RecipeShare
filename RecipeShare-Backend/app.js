@@ -20,7 +20,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 const corsOptions = {
-    origin: ['http://192.168.0.77:5173', 'http://localhost:5173'],
+    origin: ['http://192.168.0.77:5173', 'http://localhost:5173', 'https://recipeshare-frontend.rcl-catcher.workers.dev'],
     methods: ['GET', 'POST', 'PUT', 'DELETE']
 }
 
