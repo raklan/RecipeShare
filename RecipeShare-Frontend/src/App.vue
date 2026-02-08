@@ -31,7 +31,7 @@ const vm = reactive({
       route: '/newRecipe'
     }
   ],
-  apiUrl: 'https://recipeshare-backend.fly.dev/',
+  apiUrl: 'https://recipeshare-backend.fly.dev',
   //apiUrl: 'http://localhost:2323',
   currentUser: {}
 })
