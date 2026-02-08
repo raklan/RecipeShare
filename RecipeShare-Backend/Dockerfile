@@ -4,7 +4,7 @@ FROM node:20-alpine
 RUN mkdir -p /data
 VOLUME /data
 
-RUN chown -R node:node/data
+RUN chown -R node:node /data
 USER node
 
 # Set working directory
