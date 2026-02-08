@@ -1,19 +1,17 @@
-# Dockerfile
 FROM node:20-alpine
 
-# Install build tools for native modules
+# Build tools for native modules
 RUN apk add --no-cache make gcc g++ python3
 
-# Create data directory
+# Create /data for SQLite
 RUN mkdir -p /data && chown -R node:node /data
 
-# Set working directory
 WORKDIR /app
 
-# Copy package files
+# Copy package files only
 COPY package*.json ./
 
-# Install dependencies (build native modules inside the container)
+# Install dependencies inside container
 RUN npm ci --only=production
 
 # Copy the rest of the app
@@ -23,8 +21,7 @@ COPY . .
 ENV PORT=2323
 EXPOSE 2323
 
-# Switch to non-root user for security
+# Run as non-root
 USER node
 
-# Start the app
 CMD ["node", "app.js"]
