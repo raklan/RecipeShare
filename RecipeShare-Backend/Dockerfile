@@ -23,5 +23,8 @@ COPY . .
 ENV PORT=2323
 EXPOSE 2323
 
+# Switch to non-root user for security
+USER node
+
 # Start the app
 CMD ["node", "app.js"]
