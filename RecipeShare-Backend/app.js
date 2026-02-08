@@ -20,7 +20,8 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 const corsOptions = {
-    origin: ['https://recyipee.com', 'http://192.168.0.77:5173', 'http://localhost:5173']
+    origin: ['http://192.168.0.77:5173', 'http://localhost:5173'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE']
 }
 
 app.use(cors(corsOptions));
