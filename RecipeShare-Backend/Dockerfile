@@ -1,6 +1,9 @@
 # Dockerfile
 FROM node:20-alpine
 
+RUN mkdir -p /data
+VOLUME /data
+
 # Set working directory
 WORKDIR /app
 
