@@ -20,7 +20,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 const corsOptions = {
-    origin: ['http://192.168.0.77:5173', 'http://localhost:5173', 'https://recipeshare-frontend.rcl-catcher.workers.dev', 'bearshark.xyz'],
+    origin: ['http://192.168.0.77:5173', 'http://localhost:5173', 'https://recipeshare-frontend.rcl-catcher.workers.dev', 'https://recyipee.bearshark.xyz'],
     methods: ['GET', 'POST', 'PUT', 'DELETE']
 }
 
